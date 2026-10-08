@@ -3,6 +3,13 @@ FROM php:8.1-apache
 # Install PDO MySQL extension
 RUN docker-php-ext-install pdo pdo_mysql
 
+# Composer runs inside the container, so the host needs no PHP; unzip is required to extract packages
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends unzip \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 # Enable Apache mod_rewrite for routing
 RUN a2enmod rewrite
 

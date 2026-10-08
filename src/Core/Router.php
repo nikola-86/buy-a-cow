@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Enums\RouteAccess;
 use Closure;
-use InvalidArgumentException;
 use RuntimeException;
 
 final class Router
 {
     /**
-     * @var array<string, array{class-string, string, string}>
+     * @var array<string, array{class-string, string, RouteAccess}>
      */
     private array $routes = [];
 
@@ -34,12 +34,8 @@ final class Router
         string $path,
         string $controller,
         string $action,
-        string $access
+        RouteAccess $access
     ): void {
-        if (!in_array($access, ['guest', 'auth', 'admin'], true)) {
-            throw new InvalidArgumentException('Unknown route access level.');
-        }
-
         $this->routes[strtoupper($method) . ' ' . $path] = [$controller, $action, $access];
     }
 
@@ -78,15 +74,15 @@ final class Router
         $instance->{$action}($request);
     }
 
-    private function hasAccess(Request $request, string $access): bool
+    private function hasAccess(Request $request, RouteAccess $access): bool
     {
         $userId = $this->auth->userId();
 
-        if ($access === 'guest' && $userId !== null) {
+        if ($access === RouteAccess::Guest && $userId !== null) {
             Response::redirect('/page-a');
         }
 
-        if ($access !== 'guest' && $userId === null) {
+        if ($access !== RouteAccess::Guest && $userId === null) {
             if ($request->isApi()) {
                 Response::json(['error' => 'Authentication required'], 401);
             }
@@ -94,7 +90,7 @@ final class Router
             Response::redirect('/login');
         }
 
-        if ($access === 'admin' && !$this->auth->isAdmin()) {
+        if ($access === RouteAccess::Admin && !$this->auth->isAdmin()) {
             $this->error($request, 403, 'Forbidden');
 
             return false;

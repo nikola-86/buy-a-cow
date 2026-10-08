@@ -38,6 +38,15 @@ final class Request
         return is_string($value) ? $value : $default;
     }
 
+    public function queryPositiveInt(string $key): ?int
+    {
+        $number = filter_var($this->query($key), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1],
+        ]);
+
+        return is_int($number) ? $number : null;
+    }
+
     public function input(string $key, ?string $default = null): ?string
     {
         $value = $_POST[$key] ?? $default;

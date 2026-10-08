@@ -23,9 +23,9 @@ final class StatisticsController
     {
         $filter = $this->statisticsService->buildFilter(
             $request->query('date'),
-            $request->query('user_id'),
+            $request->queryPositiveInt('user_id'),
             $request->query('action'),
-            $request->query('page')
+            $request->queryPositiveInt('page')
         );
         $result = $this->statisticsService->findEvents($filter);
 

@@ -18,13 +18,14 @@ final class StatisticsService
     ) {
     }
 
-    public function buildFilter(?string $date, ?string $userId, ?string $action, ?string $page): EventFilter
+    public function buildFilter(?string $date, ?int $userId, ?string $action, ?int $page): EventFilter
     {
         return new EventFilter(
             $this->parseDate($date),
-            $this->parsePositiveInt($userId),
+            $userId,
             $action === null ? null : EventAction::tryFrom($action),
-            $this->parsePositiveInt($page, intdiv(PHP_INT_MAX, self::PAGE_SIZE)) ?? 1
+            // Larger page numbers would overflow the OFFSET calculation.
+            $page !== null && $page >= 1 && $page <= intdiv(PHP_INT_MAX, self::PAGE_SIZE) ? $page : 1
         );
     }
 
@@ -59,14 +60,5 @@ final class StatisticsService
 
         // The round trip rejects overflowing dates such as 2026-02-31.
         return $parsedDate !== false && $parsedDate->format('Y-m-d') === $date ? $parsedDate : null;
-    }
-
-    private function parsePositiveInt(?string $value, int $max = PHP_INT_MAX): ?int
-    {
-        $number = filter_var($value, FILTER_VALIDATE_INT, [
-            'options' => ['min_range' => 1, 'max_range' => $max],
-        ]);
-
-        return is_int($number) ? $number : null;
     }
 }

@@ -26,7 +26,7 @@ final class EventApiController
         try {
             $payload = $request->json();
         } catch (JsonException | UnexpectedValueException) {
-            Response::json(['error' => 'Invalid JSON body'], 422);
+            Response::json(['error' => 'Invalid JSON body'], 400);
         }
 
         $target = is_string($payload['target'] ?? null) ? EventTarget::tryFrom($payload['target']) : null;

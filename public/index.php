@@ -14,6 +14,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
 use App\Core\View;
+use App\Enums\RouteAccess;
 use App\Repositories\EventRepository;
 use App\Repositories\UserRepository;
 use App\Services\ActivityTracker;
@@ -77,18 +78,18 @@ $router = new Router($auth, $csrf, $view, [
     ),
 ]);
 
-$router->add('GET', '/', AuthController::class, 'home', 'guest');
-$router->add('GET', '/login', AuthController::class, 'showLoginForm', 'guest');
-$router->add('POST', '/login', AuthController::class, 'login', 'guest');
-$router->add('GET', '/register', AuthController::class, 'showRegistrationForm', 'guest');
-$router->add('POST', '/register', AuthController::class, 'register', 'guest');
-$router->add('POST', '/logout', AuthController::class, 'logout', 'auth');
-$router->add('GET', '/page-a', PageController::class, 'pageA', 'auth');
-$router->add('GET', '/page-b', PageController::class, 'pageB', 'auth');
-$router->add('POST', '/download', PageController::class, 'download', 'auth');
-$router->add('POST', '/api/events', EventApiController::class, 'store', 'auth');
-$router->add('GET', '/statistics', StatisticsController::class, 'index', 'admin');
-$router->add('GET', '/reports', ReportController::class, 'index', 'auth');
+$router->add('GET', '/', AuthController::class, 'home', RouteAccess::Guest);
+$router->add('GET', '/login', AuthController::class, 'showLoginForm', RouteAccess::Guest);
+$router->add('POST', '/login', AuthController::class, 'login', RouteAccess::Guest);
+$router->add('GET', '/register', AuthController::class, 'showRegistrationForm', RouteAccess::Guest);
+$router->add('POST', '/register', AuthController::class, 'register', RouteAccess::Guest);
+$router->add('POST', '/logout', AuthController::class, 'logout', RouteAccess::Auth);
+$router->add('GET', '/page-a', PageController::class, 'pageA', RouteAccess::Auth);
+$router->add('GET', '/page-b', PageController::class, 'pageB', RouteAccess::Auth);
+$router->add('POST', '/download', PageController::class, 'download', RouteAccess::Auth);
+$router->add('POST', '/api/events', EventApiController::class, 'store', RouteAccess::Auth);
+$router->add('GET', '/statistics', StatisticsController::class, 'index', RouteAccess::Admin);
+$router->add('GET', '/reports', ReportController::class, 'index', RouteAccess::Auth);
 
 try {
     $router->dispatch($request);

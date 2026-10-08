@@ -23,10 +23,7 @@ final class ReportController
     public function index(Request $request): void
     {
         $isAdmin = $this->auth->isAdmin();
-        $requestedUserId = filter_var($request->query('user_id'), FILTER_VALIDATE_INT, [
-            'options' => ['min_range' => 1],
-        ]);
-        $selectedUserId = $isAdmin && is_int($requestedUserId) ? $requestedUserId : null;
+        $selectedUserId = $isAdmin ? $request->queryPositiveInt('user_id') : null;
 
         $this->view->render('reports/index', [
             'title' => 'Reports',

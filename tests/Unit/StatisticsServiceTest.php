@@ -18,7 +18,7 @@ final class StatisticsServiceTest extends TestCase
     {
         $service = new StatisticsService($this->createStub(EventRepositoryInterface::class));
 
-        $filter = $service->buildFilter('2026-10-01', '3', 'button-click', '2');
+        $filter = $service->buildFilter('2026-10-01', 3, 'button-click', 2);
 
         $this->assertEquals(
             new EventFilter(new DateTimeImmutable('2026-10-01 00:00:00'), 3, EventAction::ButtonClick, 2),
@@ -27,7 +27,7 @@ final class StatisticsServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{?string, ?string, ?string, ?string}>
+     * @return array<string, array{?string, ?int, ?string, ?int}>
      */
     public static function invalidFilterInput(): array
     {
@@ -35,19 +35,18 @@ final class StatisticsServiceTest extends TestCase
             'missing parameters' => [null, null, null, null],
             'overflowing date' => ['2026-02-31', null, null, null],
             'wrong date format' => ['01.10.2026', null, null, null],
-            'non-numeric user id' => [null, 'abc', null, null],
             'unknown action' => [null, null, 'purchase', null],
-            'negative page' => [null, null, null, '-1'],
-            'zero page' => [null, null, null, '0'],
+            'zero page' => [null, null, null, 0],
+            'page that overflows the offset' => [null, null, null, PHP_INT_MAX],
         ];
     }
 
     #[DataProvider('invalidFilterInput')]
     public function testBuildFilterFallsBackToDefaultsForInvalidInput(
         ?string $date,
-        ?string $userId,
+        ?int $userId,
         ?string $action,
-        ?string $page
+        ?int $page
     ): void {
         $service = new StatisticsService($this->createStub(EventRepositoryInterface::class));
 

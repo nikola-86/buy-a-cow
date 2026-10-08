@@ -45,6 +45,7 @@ final class PageController
 
         $this->activityTracker->track($this->auth->requireUserId(), EventAction::ButtonClick, EventTarget::Download);
 
+        // TODO: Move the download headers to a Response::download() method, like Response::json() and redirect().
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . self::DOWNLOAD_FILE_NAME . '"');
         header('Content-Length: ' . filesize($filePath));
