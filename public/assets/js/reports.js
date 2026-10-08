@@ -10,7 +10,11 @@ new Chart(document.getElementById('report-chart'), {
         })),
     },
     options: {
+        elements: {
+            point: { radius: 4, hoverRadius: 6 },
+        },
         scales: {
+            x: { offset: true },
             y: {
                 beginAtZero: true,
                 ticks: { precision: 0 },

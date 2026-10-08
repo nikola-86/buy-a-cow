@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         failOnWarning="true"
+         failOnRisky="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
+    <php>
+        <ini name="date.timezone" value="UTC"/>
+        <!-- Defaults for running on the host; the app container already provides DB_HOST, DB_USER and DB_PASSWORD. -->
+        <env name="DB_HOST" value="127.0.0.1"/>
+        <env name="DB_USER" value="tracker_user"/>
+        <env name="DB_PASSWORD" value="tracker_password"/>
+        <env name="TEST_DB_NAME" value="user_tracker_test" force="true"/>
+    </php>
+</phpunit>
