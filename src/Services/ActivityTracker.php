@@ -6,12 +6,12 @@ namespace App\Services;
 
 use App\Enums\EventAction;
 use App\Enums\EventTarget;
-use App\Repositories\EventRepository;
+use App\Repositories\EventRepositoryInterface;
 
 final class ActivityTracker
 {
     public function __construct(
-        private readonly EventRepository $eventRepository = new EventRepository()
+        private readonly EventRepositoryInterface $eventRepository
     ) {
     }
 

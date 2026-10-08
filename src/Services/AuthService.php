@@ -6,7 +6,7 @@ namespace App\Services;
 
 use App\Enums\Role;
 use App\Exceptions\ValidationException;
-use App\Repositories\UserRepository;
+use App\Repositories\UserRepositoryInterface;
 
 final class AuthService
 {
@@ -15,7 +15,7 @@ final class AuthService
     private const PASSWORD_MIN_LENGTH = 8;
 
     public function __construct(
-        private readonly UserRepository $userRepository = new UserRepository()
+        private readonly UserRepositoryInterface $userRepository
     ) {
     }
 

@@ -14,8 +14,8 @@ function e(mixed $value): string
 final class View
 {
     public function __construct(
-        private readonly Auth $auth = new Auth(),
-        private readonly Csrf $csrf = new Csrf()
+        private readonly Auth $auth,
+        private readonly Csrf $csrf
     ) {
     }
 

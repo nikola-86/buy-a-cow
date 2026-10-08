@@ -26,6 +26,11 @@ final class Request
         return is_string($path) && $path !== '' ? $path : '/';
     }
 
+    public function isApi(): bool
+    {
+        return str_starts_with($this->path(), '/api/');
+    }
+
     public function query(string $key, ?string $default = null): ?string
     {
         $value = $_GET[$key] ?? $default;

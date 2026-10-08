@@ -16,10 +16,10 @@ use App\Services\AuthService;
 final class AuthController
 {
     public function __construct(
-        private readonly AuthService $authService = new AuthService(),
-        private readonly ActivityTracker $activityTracker = new ActivityTracker(),
-        private readonly Auth $auth = new Auth(),
-        private readonly View $view = new View()
+        private readonly AuthService $authService,
+        private readonly ActivityTracker $activityTracker,
+        private readonly Auth $auth,
+        private readonly View $view
     ) {
     }
 

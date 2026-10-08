@@ -4,22 +4,16 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Core\Database;
 use App\Enums\Role;
 use PDO;
 
-final class UserRepository
+final class UserRepository implements UserRepositoryInterface
 {
-    private readonly PDO $pdo;
-
-    public function __construct(?PDO $pdo = null)
-    {
-        $this->pdo = $pdo ?? Database::getConnection();
+    public function __construct(
+        private readonly PDO $pdo
+    ) {
     }
 
-    /**
-     * @return array{id: int, username: string, password_hash: string, role: string}|null
-     */
     public function findByUsername(string $username): ?array
     {
         $statement = $this->pdo->prepare(
@@ -29,6 +23,14 @@ final class UserRepository
         $user = $statement->fetch();
 
         return $user === false ? null : $user;
+    }
+
+    public function findAll(): array
+    {
+        $statement = $this->pdo->prepare('SELECT id, username FROM users ORDER BY username');
+        $statement->execute();
+
+        return $statement->fetchAll();
     }
 
     public function create(string $username, string $passwordHash, Role $role): int

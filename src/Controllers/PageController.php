@@ -16,9 +16,9 @@ final class PageController
     private const DOWNLOAD_FILE_NAME = 'cow-installer.exe';
 
     public function __construct(
-        private readonly ActivityTracker $activityTracker = new ActivityTracker(),
-        private readonly Auth $auth = new Auth(),
-        private readonly View $view = new View()
+        private readonly ActivityTracker $activityTracker,
+        private readonly Auth $auth,
+        private readonly View $view
     ) {
     }
 

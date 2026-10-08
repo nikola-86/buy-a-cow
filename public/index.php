@@ -5,10 +5,21 @@ declare(strict_types=1);
 use App\Controllers\Api\EventApiController;
 use App\Controllers\AuthController;
 use App\Controllers\PageController;
+use App\Controllers\ReportController;
+use App\Controllers\StatisticsController;
+use App\Core\Auth;
+use App\Core\Csrf;
+use App\Core\Database;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
 use App\Core\View;
+use App\Repositories\EventRepository;
+use App\Repositories\UserRepository;
+use App\Services\ActivityTracker;
+use App\Services\AuthService;
+use App\Services\ReportService;
+use App\Services\StatisticsService;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -33,7 +44,39 @@ session_set_cookie_params([
 session_start();
 
 $request = new Request();
-$router = new Router();
+$auth = new Auth();
+$csrf = new Csrf();
+$view = new View($auth, $csrf);
+
+$eventRepository = static fn (): EventRepository => new EventRepository(Database::getConnection());
+$userRepository = static fn (): UserRepository => new UserRepository(Database::getConnection());
+$activityTracker = static fn (): ActivityTracker => new ActivityTracker($eventRepository());
+
+$router = new Router($auth, $csrf, $view, [
+    AuthController::class => static fn (): AuthController => new AuthController(
+        new AuthService($userRepository()),
+        $activityTracker(),
+        $auth,
+        $view
+    ),
+    PageController::class => static fn (): PageController => new PageController($activityTracker(), $auth, $view),
+    EventApiController::class => static fn (): EventApiController => new EventApiController(
+        $activityTracker(),
+        $auth
+    ),
+    StatisticsController::class => static fn (): StatisticsController => new StatisticsController(
+        new StatisticsService($eventRepository()),
+        $userRepository(),
+        $view
+    ),
+    ReportController::class => static fn (): ReportController => new ReportController(
+        new ReportService($eventRepository()),
+        $userRepository(),
+        $auth,
+        $view
+    ),
+]);
+
 $router->add('GET', '/', AuthController::class, 'home', 'guest');
 $router->add('GET', '/login', AuthController::class, 'showLoginForm', 'guest');
 $router->add('POST', '/login', AuthController::class, 'login', 'guest');
@@ -44,17 +87,19 @@ $router->add('GET', '/page-a', PageController::class, 'pageA', 'auth');
 $router->add('GET', '/page-b', PageController::class, 'pageB', 'auth');
 $router->add('POST', '/download', PageController::class, 'download', 'auth');
 $router->add('POST', '/api/events', EventApiController::class, 'store', 'auth');
+$router->add('GET', '/statistics', StatisticsController::class, 'index', 'admin');
+$router->add('GET', '/reports', ReportController::class, 'index', 'auth');
 
 try {
     $router->dispatch($request);
 } catch (Throwable $exception) {
     error_log((string) $exception);
 
-    if (str_starts_with($request->path(), '/api/')) {
+    if ($request->isApi()) {
         Response::json(['error' => 'Internal server error'], 500);
     }
 
-    (new View())->render('error', [
+    $view->render('error', [
         'title' => '500 Error',
         'status' => 500,
         'message' => 'Internal server error',

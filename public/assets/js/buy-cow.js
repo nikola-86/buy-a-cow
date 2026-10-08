@@ -2,8 +2,8 @@ const buyCowButton = document.getElementById('buy-cow-button');
 const thankYouMessage = document.getElementById('buy-cow-thank-you');
 const errorMessage = document.getElementById('buy-cow-error');
 
-async function trackBuyCowClick() {
-    const response = await fetch('/api/events', {
+function postBuyCowEvent() {
+    return fetch('/api/events', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -11,10 +11,6 @@ async function trackBuyCowClick() {
         },
         body: JSON.stringify({ target: buyCowButton.dataset.eventTarget }),
     });
-
-    if (response.status !== 201) {
-        throw new Error(`Unexpected response status: ${response.status}`);
-    }
 }
 
 buyCowButton.addEventListener('click', async () => {
@@ -22,7 +18,17 @@ buyCowButton.addEventListener('click', async () => {
     errorMessage.hidden = true;
 
     try {
-        await trackBuyCowClick();
+        const response = await postBuyCowEvent();
+
+        if (response.status === 401) {
+            window.location.assign('/login');
+            return;
+        }
+
+        if (response.status !== 201) {
+            throw new Error(`Unexpected response status: ${response.status}`);
+        }
+
         buyCowButton.hidden = true;
         thankYouMessage.hidden = false;
     } catch (error) {

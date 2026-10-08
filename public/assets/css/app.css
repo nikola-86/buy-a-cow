@@ -14,3 +14,14 @@ nav .inline-form button {
 .form-success {
     color: var(--pico-ins-color);
 }
+
+.form-actions,
+.pagination {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.form-actions {
+    margin-bottom: var(--pico-spacing);
+}

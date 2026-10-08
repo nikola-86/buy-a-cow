@@ -16,8 +16,8 @@ use UnexpectedValueException;
 final class EventApiController
 {
     public function __construct(
-        private readonly ActivityTracker $activityTracker = new ActivityTracker(),
-        private readonly Auth $auth = new Auth()
+        private readonly ActivityTracker $activityTracker,
+        private readonly Auth $auth
     ) {
     }
 

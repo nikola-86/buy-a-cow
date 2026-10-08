@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use Closure;
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -14,10 +15,14 @@ final class Router
      */
     private array $routes = [];
 
+    /**
+     * @param array<class-string, Closure(): object> $controllerFactories Called only for the matched route
+     */
     public function __construct(
-        private readonly Auth $auth = new Auth(),
-        private readonly Csrf $csrf = new Csrf(),
-        private readonly View $view = new View()
+        private readonly Auth $auth,
+        private readonly Csrf $csrf,
+        private readonly View $view,
+        private readonly array $controllerFactories
     ) {
     }
 
@@ -62,7 +67,9 @@ final class Router
             }
         }
 
-        $instance = new $controller();
+        $createController = $this->controllerFactories[$controller]
+            ?? throw new RuntimeException(sprintf('No factory registered for %s.', $controller));
+        $instance = $createController();
 
         if (!method_exists($instance, $action)) {
             throw new RuntimeException('Configured route action does not exist.');
@@ -80,6 +87,10 @@ final class Router
         }
 
         if ($access !== 'guest' && $userId === null) {
+            if ($request->isApi()) {
+                Response::json(['error' => 'Authentication required'], 401);
+            }
+
             Response::redirect('/login');
         }
 
@@ -94,7 +105,7 @@ final class Router
 
     private function error(Request $request, int $status, string $message): void
     {
-        if (str_starts_with($request->path(), '/api/')) {
+        if ($request->isApi()) {
             Response::json(['error' => $message], $status);
         }
 
