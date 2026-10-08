@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Controllers\Api\EventApiController;
 use App\Controllers\AuthController;
+use App\Controllers\PageController;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
@@ -33,10 +35,15 @@ session_start();
 $request = new Request();
 $router = new Router();
 $router->add('GET', '/', AuthController::class, 'home', 'guest');
-$router->add('GET', '/login', AuthController::class, 'login', 'guest');
+$router->add('GET', '/login', AuthController::class, 'showLoginForm', 'guest');
 $router->add('POST', '/login', AuthController::class, 'login', 'guest');
-$router->add('GET', '/register', AuthController::class, 'register', 'guest');
+$router->add('GET', '/register', AuthController::class, 'showRegistrationForm', 'guest');
 $router->add('POST', '/register', AuthController::class, 'register', 'guest');
+$router->add('POST', '/logout', AuthController::class, 'logout', 'auth');
+$router->add('GET', '/page-a', PageController::class, 'pageA', 'auth');
+$router->add('GET', '/page-b', PageController::class, 'pageB', 'auth');
+$router->add('POST', '/download', PageController::class, 'download', 'auth');
+$router->add('POST', '/api/events', EventApiController::class, 'store', 'auth');
 
 try {
     $router->dispatch($request);

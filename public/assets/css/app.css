@@ -6,3 +6,11 @@ nav .inline-form button {
     margin: 0;
     padding: 0.35rem 0.75rem;
 }
+
+.form-error {
+    color: var(--pico-del-color);
+}
+
+.form-success {
+    color: var(--pico-ins-color);
+}

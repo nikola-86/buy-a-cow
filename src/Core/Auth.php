@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Enums\Role;
+use LogicException;
 
 final class Auth
 {
@@ -40,6 +41,11 @@ final class Auth
         $userId = $_SESSION['user_id'] ?? null;
 
         return is_int($userId) ? $userId : null;
+    }
+
+    public function requireUserId(): int
+    {
+        return $this->userId() ?? throw new LogicException('An authenticated user is required.');
     }
 
     public function username(): ?string
