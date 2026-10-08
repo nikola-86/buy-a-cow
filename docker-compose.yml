@@ -1,10 +1,14 @@
-version: '3.8'
-
 services:
   app:
     build: .
     ports:
       - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: user_tracker
+      DB_USER: tracker_user
+      DB_PASSWORD: tracker_password
+      TZ: UTC
     volumes:
       - .:/var/www/html
     depends_on:
@@ -12,15 +16,18 @@ services:
 
   db:
     image: mysql:8.0
+    command: --default-time-zone=+00:00
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: user_tracker
       MYSQL_USER: tracker_user
       MYSQL_PASSWORD: tracker_password
+      TZ: UTC
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d:ro
 
 volumes:
   db_data:
